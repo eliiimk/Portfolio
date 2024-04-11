@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <title>Hangman - Administration</title>
+</head>
+<body>
+    <div class="div-container">
+        <h1>Panneau d'administration</h1>
+    </div>
+    
+    <div class="div-container">
+        <h2>Scoreboard</h2>
+        <ul class="list-columns">
+            {{ range .Scores }}
+            <li>{{ .Username }} - {{ .Score }}</li>
+            {{ end }}
+        </ul>
+    </div>
+
+    <div class="div-container">
+        <!-- Choix du niveau de difficulté -->
+        <h2>Choix du niveau de difficulté</h2>
+        <form action="/set-difficulty" method="POST">
+            <label for="difficulty">Niveau de difficulté :</label>
+            <select id="difficulty" name="difficulty">
+                <option value="facile">Facile</option>
+                <option value="normal">Moyen</option>
+                <option value="difficile">Difficile</option>
+            </select>
+            <button type="submit">Sauvegarder</button>
+        </form>
+    </div>
+</body>
+</html>

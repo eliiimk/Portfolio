@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman - Début</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('/start.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #2b4676;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            font-size: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+            margin-top: 50px;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 20px;
+            margin-top: 300px;
+        }
+
+        input {
+            width: 25%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 20px;
+        }
+
+        button {
+            background-color: #000000;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #294cff;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Commencer le jeu Hangman</h1>
+    <form action="/start" method="POST">
+        <div class="input-group">
+            <label for="username">Entrez votre nom d'utilisateur :</label>
+            <input type="text" id="username" name="username">
+        </div>
+        <!-- Placer le bouton en dessous de la ligne de l'input -->
+        <button type="submit">Commencer le jeu</button>
+    </form>
+</body>
+</html>

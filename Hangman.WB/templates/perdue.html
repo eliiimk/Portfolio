@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defeat!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('/lose.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #2b4676;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #e74c3c; /* Rouge foncé pour indiquer la défaite */
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        button {
+            background-color: #3498db; /* Bleu vif pour le bouton */
+            color: #fff;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9; /* Variation de couleur au survol du bouton */
+        }
+    </style>
+</head>
+<body>
+    <h1>Partie perdue !</h1>
+    <p>Vous n'avez pas trouvé le mot caché !</p>
+    <form action="/start" method="post">
+        <button type="submit">Voulez-vous réessayer</button>
+    </form>
+</body>
+</html>
