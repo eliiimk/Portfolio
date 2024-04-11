@@ -1,262 +1,173 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"html/template"
-	"math/rand"
-	"net/http"
-	"os"
-	"strings"
-	"time"
+    "bufio"
+    "fmt"
+    "math/rand"
+    "os"
+    "time"
 )
 
-type HangmanGame struct {
-	WordToGuess    string
-	DisplayedWord  string
-	GuessedLetters []string
-	AttemptsLeft   int
-	HangmanDrawing string
+var mots = []string{
+    "mot1",
+    "mot2",
+    "mot3",
+    // Ajoutez d'autres mots ici
 }
 
-type Score struct {
-	Username string
-	Score    int
+func Asciiprinter(Word []rune) {
+    for hauteur := 2; hauteur <= 10; hauteur++ {
+        for _, letter := range Word {
+            Showletter(letter, hauteur)
+        }
+        fmt.Println("")
+    }
 }
 
-type AdminData struct {
-	Scores []Score
+var numero int
+
+func Showletter(letter rune, line int) {
+    file, err := os.Open("asciiArt.txt")
+    if err != nil {
+        fmt.Println("Erreur lors de l'ouverture du fichier :", err)
+        return
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+
+    lineCount := 1
+    startLine := 0
+
+    numero = int(letter) - 32
+
+    startLine = (numero * 9) + line
+
+    for scanner.Scan() {
+        lineCount++
+        if lineCount == startLine {
+            fmt.Print(scanner.Text())
+        }
+    }
+
+    if scanner.Err() != nil {
+        fmt.Println("Erreur lors de la lecture du fichier :", scanner.Err())
+    }
 }
 
-const port = ":8000"
+func choisirMot() string {
+    mots, err := chargerMotsDepuisFichier("Words.txt")
+    if err != nil {
+        fmt.Printf("Erreur lors de la lecture du fichier de mots : %v\n", err)
+        os.Exit(1)
+    }
 
-var game HangmanGame
+    rand.Seed(time.Now().Unix())
+    index := rand.Intn(len(mots))
+    return mots[index]
+}
+func chargerMotsDepuisFichier(nomFichier string) ([]string, error) {
+    fichier, err := os.Open(nomFichier)
+    if err != nil {
+        return nil, err
+    }
+    defer fichier.Close()
 
+    mots := make([]string, 0)
+    scanner := bufio.NewScanner(fichier)
+    for scanner.Scan() {
+        mot := scanner.Text()
+        mots = append(mots, mot)
+    }
+
+    if err := scanner.Err(); err != nil {
+        return nil, err
+    }
+
+    return mots, nil
+}
+
+func afficherJose(positions []string, position int, afficher bool) {
+    if afficher && position < len(positions) {
+        fmt.Println(positions[position])
+    }
+}
+func chargerPositionsDepuisFichier(nomFichier string) ([]string, error) {
+    fichier, err := os.Open(nomFichier)
+    if err != nil {
+        return nil, err
+    }
+    defer fichier.Close()
+
+    positions := make([]string, 0)
+    scanner := bufio.NewScanner(fichier)
+    positionActuelle := ""
+    for scanner.Scan() {
+        ligne := scanner.Text()
+        if ligne == "=========" {
+            positions = append(positions, positionActuelle)
+            positionActuelle = ""
+        } else {
+            positionActuelle += ligne + "\n"
+        }
+    }
+
+    if err := scanner.Err(); err != nil {
+        return nil, err
+    }
+
+    return positions, nil
+}
 func main() {
-	initGame(1)
+    positions, err := chargerPositionsDepuisFichier("hangman.txt")
+    if err != nil {
+        fmt.Printf("Erreur lors de la lecture du fichier de positions : %v\n", err)
+        os.Exit(1)
+    }
+    motADeviner := choisirMot()
+    longueurMot := len(motADeviner)
+    lettresRevelees := make([]rune, longueurMot)
+    tentativesRestantes := 10
 
-	http.HandleFunc("/", mainHandler)
-	http.HandleFunc("/start", startHandler)
-	http.HandleFunc("/hangman", hangmanHandler)
-	http.HandleFunc("/admin", adminHandler)
+    for i := range lettresRevelees {
+        lettresRevelees[i] = '_'
+    }
 
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
-	fmt.Println("(http://localhost:8000) - server start on port", port)
-	http.ListenAndServe(":8000", nil)
-}
+    fmt.Println("Bienvenue au jeu du Pendu!")
+    fmt.Printf("Le mot à deviner contient %d lettres.\n", longueurMot)
 
-func initGame(difficulty int) {
-	var wordsFile string
+    for tentativesRestantes > 0 {
 
-	switch difficulty {
-	case 1:
-		wordsFile = "words/facile.txt"
-	case 2:
-		wordsFile = "words/moyen.txt"
-	case 3:
-		wordsFile = "words/difficile.txt"
-	default:
-		fmt.Println("Invalid difficulty level")
-		return
-	}
+        fmt.Printf("Tentatives restantes : %d\n", tentativesRestantes)
+        Asciiprinter(lettresRevelees)
+        fmt.Print("Devinez une lettre : ")
 
-	word, err := getRandomWord(wordsFile)
-	if err != nil {
-		fmt.Println("Error loading word:", err)
-		return
-	}
+        scanner := bufio.NewScanner(os.Stdin)
+        scanner.Scan()
+        lettre := []rune(scanner.Text())[0]
 
-	game = HangmanGame{
-		WordToGuess:    word,
-		DisplayedWord:  strings.Repeat("_ ", len(word)),
-		GuessedLetters: []string{},
-		AttemptsLeft:   6,
-	}
-}
+        lettreCorrecte := false
+        for i, char := range motADeviner {
+            if lettre == char {
+                lettresRevelees[i] = lettre
+                lettreCorrecte = true
+            }
+        }
 
-func getRandomWord(filename string) (string, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
+        if !lettreCorrecte {
+            fmt.Println("La lettre n'est pas dans le mot.")
+            tentativesRestantes--
+            afficherJose(positions, 10-tentativesRestantes, true)
+        }
 
-	scanner := bufio.NewScanner(file)
-	var words []string
+        if string(lettresRevelees) == motADeviner {
+            fmt.Printf("Félicitations, vous avez deviné le mot : %s\n", motADeviner)
+            break
+        }
+    }
 
-	for scanner.Scan() {
-		words = append(words, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		return "", err
-	}
-
-	if len(words) == 0 {
-		return "", fmt.Errorf("no words found in the file")
-	}
-
-	return words[randomInt(len(words))], nil
-}
-
-func randomInt(max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max)
-}
-
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "index", game)
-}
-
-func startHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		r.ParseForm()
-		username := r.Form.Get("username")
-		fmt.Println("Username:", username)
-		initGame(1)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	renderTemplate(w, "start", nil)
-}
-func hangmanHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		letter := r.FormValue("letter")
-		if strings.Contains(game.WordToGuess, letter) {
-			game.DisplayedWord = updateDisplayedWord(game.WordToGuess, game.DisplayedWord, letter)
-		} else {
-			game.AttemptsLeft--
-			game.HangmanDrawing = drawHangman(game.AttemptsLeft)
-		}
-
-		game.GuessedLetters = append(game.GuessedLetters, letter)
-
-		if game.DisplayedWord == game.WordToGuess {
-			renderTemplate(w, "gagner", game)
-			return
-		} else if game.AttemptsLeft == 0 {
-			renderTemplate(w, "perdue", game)
-			return
-		}
-	}
-
-	renderTemplate(w, "index", game)
-
-	game.HangmanDrawing = drawHangman(game.AttemptsLeft)
-}
-
-func updateDisplayedWord(wordToGuess, displayedWord, letter string) string {
-	var updatedWord strings.Builder
-
-	for i, char := range wordToGuess {
-		if string(char) == letter {
-			updatedWord.WriteString(letter)
-		} else {
-			updatedWord.WriteString(string(displayedWord[i]))
-		}
-	}
-
-	return updatedWord.String()
-}
-
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	tmplPath := fmt.Sprintf("templates/%s.html", tmpl)
-	if err := template.Must(template.ParseFiles(tmplPath)).Execute(w, data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func adminHandler(w http.ResponseWriter, r *http.Request) {
-	scores := getFakeScores()
-	adminData := AdminData{
-		Scores: scores,
-	}
-	renderTemplate(w, "admin", adminData)
-}
-
-func getFakeScores() []Score {
-	return []Score{
-		{Username: "Joueur1", Score: 100},
-		{Username: "Joueur2", Score: 80},
-		{Username: "Joueur3", Score: 70},
-		{Username: "Joueur4", Score: 90},
-		{Username: "Joueur5", Score: 85},
-		{Username: "Joueur6", Score: 95},
-		{Username: "Joueur7", Score: 75},
-	}
-}
-
-func drawHangman(attemptsLeft int) string {
-	var hangmanDrawing string
-
-	switch attemptsLeft {
-	case 6:
-		hangmanDrawing = `
-  +---+  
-  |   |  
-      |  
-      |  
-      |  
-      |  
-=========`
-	case 5:
-		hangmanDrawing = `
-  +---+  
-  |   |  
-  O   |  
-      |  
-      |  
-      |  
-=========`
-	case 4:
-		hangmanDrawing = `
-  +---+  
-  |   |  
-  O   |  
-  |   |  
-      |  
-      |  
-=========`
-	case 3:
-		hangmanDrawing = `
-  +---+  
-  |   |  
-  O   |  
- /|   |  
-      |  
-      |  
-=========`
-	case 2:
-		hangmanDrawing = `
-  +---+  
-  |   |  
-  O   |  
- /|\  |  
-      |  
-      |  
-=========`
-	case 1:
-		hangmanDrawing = `
- +---+  
- |   |  
- O   |  
-/|\  |  
-/    |  
-     |  
-=========`
-	case 0:
-		hangmanDrawing = `
-  +---+  
-  |   |  
- o    |  
- /|\  |  
- / \  |  
-      |  
-=========`
-	default:
-		hangmanDrawing = "Hangman Complete"
-	}
-
-	return hangmanDrawing
+    if string(lettresRevelees) != motADeviner {
+        fmt.Printf("Désolé, vous avez épuisé toutes vos tentatives. Le mot était : %s\n", motADeviner)
+ 
+    }
 }
