@@ -19,57 +19,115 @@
     </header>
 
     <section id="about" class="about-section">
-      
+        <h1>Who Am I ? : Hi, I’m Eli Moktar, Currently based in Paris France, I am a first year in Bachelor of IT at Paris Ynov Campus, passionate about the world of web development. My academic background and experiences have led me to discover my passion for creating innovative digital solutions. My goal is to become an accomplished web developer, able to design intuitive and effective applications and websites that meet the needs of their users.</h1>
     </section>
 
     <section id="Portfolio" class="portfolio-section">
         <div class="card">
+            <img src="Hangman.png" alt="Hangman">
             <h3>Hangman Go</h3>
-            
-            <button onclick="runHangmanGo()">Jouer</button>
+            <a href="https://ytrack.learn.ynov.com/git/meli/Hangman_Classic.git" target="_blank">
+                <button id="hangButton">Jouer</button>
+            </a>
         </div>
         <div class="card">
+            <img src="HangmanWeb.png" alt="Hangman Web">
             <h3>Hangman Web</h3>
-            <a href="http://localhost:8000" target="_blank">Jouer</a>
+            <a href="http://localhost:8000" target="_blank">
+                <button id="hangwebButton">Jouer</button>
+            </a>
         </div>
         <div class="card">
-            <h3>API</h3>
+            <img src="GroupieTracker.png" alt="Groupie-Tracker">
+            <h3>Groupie Tracker</h3>
+            <a href="https://github.com/Gaper8/Groupie-Tracker.git" target="_blank">
+                <button id="apiButton">Lancer </button>
+            </a>
         </div>
       </div>
     </section>
 
     <section id="Contact" class="contact-section">
-        <div class="card">
+        <div class="form-container">
+          <form action="/submit_form" method="post">
+            <div class="form-field">
+              <label for="fname">Prénom:</label><br>
+              <input type="text" id="fname" name="fname"><br>
+            </div>
+            <div class="form-field">
+              <label for="lname">Nom:</label><br>
+              <input type="text" id="lname" name="lname"><br>
+            </div>
+            <div class="form-field">
+              <label for="email">Email:</label><br>
+              <input type="email" id="email" name="email"><br>
+            </div>
+            <div class="form-field">
+              <label for="message">Message:</label><br>
+              <textarea id="message" name="message"></textarea><br>
+            </div>
+            <input type="submit" value="Envoyer">
+          </form>
+        </div>
+      
+        <div class="card-container">
+          <div class="card">
             <a href="https://www.instagram.com/eliii.mmk" target="_blank">
-                <img src="instagram.png" alt="Instagram">
-                <h3>Instagram</h3>
+              <img src="instagram.png" alt="Instagram">
+              <h3>Instagram</h3>
             </a>
-        </div>
-        <div class="card">
+          </div>
+          <div class="card">
             <a href="https://www.facebook.com/Eli Mk" target="_blank">
-                <img src="facebook.png" alt="Facebook">
-                <h3>Facebook</h3>
+              <img src="facebook.png" alt="Facebook">
+              <h3>Facebook</h3>
             </a>
-        </div>
-        <div class="card">
+          </div>
+          <div class="card">
             <a href="https://twitter.com/eliii_mmk" target="_blank">
-                <img src="twitter.png" alt="Twitter">
-                <h3>Twitter</h3>
+              <img src="twitter.png" alt="Twitter">
+              <h3>Twitter</h3>
             </a>
-        </div>
-        <div class="card">
+          </div>
+          <div class="card">
             <a href="https://github.com/eliiimk" target="_blank">
-                <img src="github.png" alt="GitHub">
-                <h3>GitHub</h3>
+              <img src="github.png" alt="GitHub">
+              <h3>GitHub</h3>
             </a>
+          </div>
         </div>
-        
     </section>
 
     <footer>
-        <p>&copy; 2024 E M. Tous droits réservés.</p>
+        <p>&copy; Portfolio</p>
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        function showSection(sectionId) {
+            var sections = document.querySelectorAll('section');
+            sections.forEach(function(section) {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+
+            var selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+                selectedSection.style.display = 'flex';
+            }
+        }
+
+        function runHangman() {
+            fetch('/play-hangman') 
+                .then(response => response.text())
+                .then(data => {
+                    // Afficher la sortie du jeu Hangman Go sur la page
+                    console.log(data);
+                })
+                .catch(error => console.error('Erreur :', error));
+            
+        }
+    </script>
 </body>
 </html>

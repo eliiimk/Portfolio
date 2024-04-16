@@ -10,7 +10,7 @@ import (
 
 var mots = []string{
     "mot1",
-    "mot2",
+    "mot2", 
     "mot3",
     // Ajoutez d'autres mots ici
 }

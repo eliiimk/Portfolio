@@ -1,4 +1,5 @@
 package main
+
 import (
     "fmt"
     "log"
@@ -6,10 +7,15 @@ import (
     "os/exec"
 )
 
+var hangmanProcess *exec.Cmd // Stocke le processus du jeu Hangman Go
+
 func handlePlayHangman(w http.ResponseWriter, r *http.Request) {
-    // Exécutez votre jeu Hangman Go
-    cmd := exec.Command("go", "run", "serveurweb.go")
-    out, err := cmd.Output()
+    if hangmanProcess == nil {
+        fmt.Fprintln(w, "Le jeu Hangman n'est pas encore démarré.")
+        return
+    }
+
+    out, err := hangmanProcess.Output()
     if err != nil {
         fmt.Fprintf(w, "Erreur lors de l'exécution du jeu Hangman : %s\n", err)
         return
@@ -19,6 +25,13 @@ func handlePlayHangman(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    // Démarrer le jeu Hangman Go en arrière-plan
+    hangmanProcess = exec.Command("go", "run", "main.go")
+    if err := hangmanProcess.Start(); err != nil {
+        log.Fatalf("Erreur lors du démarrage du jeu Hangman : %s\n", err)
+    }
+    defer hangmanProcess.Process.Kill() // Arrêter le jeu lorsque le serveur se termine
+
     http.HandleFunc("/play-hangman", handlePlayHangman)
 
     fmt.Println("Serveur démarré sur le port 8080...")
